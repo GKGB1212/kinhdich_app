@@ -1,0 +1,381 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: #1a1410;
+  color: #f0e6d2;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  color: #e8c878;
+  letter-spacing: 0.5px;
+}
+
+.sub {
+  margin: 0;
+  color: #a89878;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+button {
+  padding: 12px 28px;
+  font-size: 16px;
+  background: #c8983c;
+  color: #1a1410;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+button:hover:not(:disabled) {
+  background: #e0b048;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: transparent;
+  color: #a89878;
+  border: 1px solid #4a3c28;
+}
+
+button.secondary:hover {
+  background: #2a2018;
+  color: #f0e6d2;
+}
+
+.panel {
+  background: #251c14;
+  border: 1px solid #3a2c20;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.panel h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  color: #e8c878;
+  font-weight: 600;
+}
+
+.coin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.coin-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  background: #1f1810;
+  border-radius: 4px;
+  font-family: "SF Mono", Monaco, monospace;
+  font-size: 14px;
+}
+
+.coin-idx {
+  color: #a89878;
+  min-width: 50px;
+}
+
+.coins {
+  display: flex;
+  gap: 4px;
+}
+
+.coin {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.coin.ngua {
+  background: #c8983c;
+  color: #1a1410;
+}
+
+.coin.sap {
+  background: #3a2c20;
+  color: #a89878;
+  border: 1px solid #4a3c28;
+}
+
+.coin.idle {
+  background: transparent;
+  color: #4a3c28;
+  border: 1px dashed #4a3c28;
+}
+
+.coin.tossing {
+  background: linear-gradient(135deg, #c8983c 0%, #8b6428 50%, #c8983c 100%);
+  color: #f0e6d2;
+  animation: coin-toss var(--duration, 1200ms) linear forwards;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes coin-toss {
+  0%   { transform: translateY(0) rotateX(0); }
+  10%  { transform: translateY(calc(var(--peak) * 0.36)) rotateX(calc(var(--rot) * 0.1)); }
+  20%  { transform: translateY(calc(var(--peak) * 0.64)) rotateX(calc(var(--rot) * 0.2)); }
+  30%  { transform: translateY(calc(var(--peak) * 0.84)) rotateX(calc(var(--rot) * 0.3)); }
+  40%  { transform: translateY(calc(var(--peak) * 0.96)) rotateX(calc(var(--rot) * 0.4)); }
+  50%  { transform: translateY(var(--peak)) rotateX(calc(var(--rot) * 0.5)); }
+  60%  { transform: translateY(calc(var(--peak) * 0.96)) rotateX(calc(var(--rot) * 0.6)); }
+  70%  { transform: translateY(calc(var(--peak) * 0.84)) rotateX(calc(var(--rot) * 0.7)); }
+  80%  { transform: translateY(calc(var(--peak) * 0.64)) rotateX(calc(var(--rot) * 0.8)); }
+  90%  { transform: translateY(calc(var(--peak) * 0.36)) rotateX(calc(var(--rot) * 0.9)); }
+  100% { transform: translateY(0) rotateX(var(--rot)); }
+}
+
+.coin.landed {
+  animation: coin-land 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes coin-land {
+  0%   { transform: scale(1.2); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+  40%  { transform: scale(0.88); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.toss-panel {
+  text-align: center;
+}
+
+.toss-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.toss-header {
+  color: #a89878;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.toss-header strong {
+  color: #e8c878;
+  font-size: 24px;
+}
+
+.toss-coins {
+  display: flex;
+  gap: 32px;
+  padding: 240px 0 24px;
+  align-items: flex-end;
+  perspective: 600px;
+}
+
+.coin-slot {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.coin-slot::before {
+  content: "";
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  width: 56px;
+  height: 8px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
+  transform: translateX(-50%);
+}
+
+.toss-coins .coin {
+  width: 64px;
+  height: 64px;
+  font-size: 24px;
+  border-radius: 50%;
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.coin.small {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.toss-result {
+  font-size: 16px;
+  color: #d0c098;
+  padding: 8px 16px;
+  background: #1f1810;
+  border-radius: 4px;
+  border-left: 3px solid #c8983c;
+}
+
+.toss-result strong {
+  color: #e8c878;
+  font-size: 20px;
+}
+
+.coin-total {
+  color: #e8c878;
+  min-width: 36px;
+}
+
+.coin-name {
+  color: #a89878;
+  margin-left: auto;
+}
+
+.hex-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.hex-col {
+  flex: 1;
+  min-width: 280px;
+}
+
+.arrow {
+  font-size: 32px;
+  color: #c8983c;
+  align-self: center;
+  padding-top: 40px;
+}
+
+.hex {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #1f1810;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "SF Mono", Monaco, monospace;
+  font-size: 13px;
+}
+
+.line-idx {
+  color: #a89878;
+  min-width: 48px;
+}
+
+.line-bar {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+
+.bar {
+  height: 10px;
+  background: #e8c878;
+  border-radius: 2px;
+}
+
+.bar.yang {
+  flex: 1;
+}
+
+.bar.yin {
+  flex: 1;
+}
+
+.changing {
+  color: #e07848;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hex-info {
+  padding: 12px 0;
+}
+
+.hex-num {
+  font-size: 14px;
+  color: #a89878;
+  margin-bottom: 4px;
+}
+
+.hex-name {
+  font-size: 22px;
+  color: #e8c878;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.hex-meaning {
+  color: #d0c098;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.trigrams {
+  font-size: 13px;
+  color: #a89878;
+  line-height: 1.8;
+}
+
+.trigrams strong {
+  color: #d0c098;
+  font-weight: 600;
+}
+
+.note {
+  margin: 16px 0 0;
+  padding: 12px;
+  background: #1f1810;
+  border-left: 3px solid #c8983c;
+  border-radius: 0 4px 4px 0;
+  font-size: 14px;
+  color: #d0c098;
+}
+
+.note strong {
+  color: #e8c878;
+}
