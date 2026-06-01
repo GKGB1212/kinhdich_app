@@ -1,10 +1,26 @@
 import { HEXAGRAMS, TRIGRAM } from "./data";
 
+// Một bit ngẫu nhiên thật từ CSPRNG của trình duyệt (rơi về Math.random nếu không có).
+// Mỗi lần tung 1 đồng xu = 1 bit độc lập, đúng như xác suất 50/50 ngoài đời.
+function randomBit() {
+  const c = globalThis.crypto;
+  if (c && c.getRandomValues) {
+    const a = new Uint8Array(1);
+    c.getRandomValues(a);
+    return a[0] & 1;
+  }
+  return Math.random() < 0.5 ? 0 : 1;
+}
+
+export function flipCoin() {
+  return randomBit() === 1 ? "ngua" : "sap";
+}
+
+export const coinValue = (c) => (c === "ngua" ? 3 : 2);
+
 export function tossThreeCoins() {
-  const coins = Array.from({ length: 3 }, () =>
-    Math.random() < 0.5 ? "sap" : "ngua"
-  );
-  const total = coins.reduce((s, c) => s + (c === "ngua" ? 3 : 2), 0);
+  const coins = Array.from({ length: 3 }, flipCoin);
+  const total = coins.reduce((s, c) => s + coinValue(c), 0);
   return { coins, total };
 }
 

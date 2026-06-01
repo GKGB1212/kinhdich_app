@@ -115,6 +115,7 @@ button.secondary:hover {
   gap: 4px;
 }
 
+/* Đồng xu nhỏ trong lịch sử gieo */
 .coin {
   width: 28px;
   height: 28px;
@@ -137,17 +138,73 @@ button.secondary:hover {
   border: 1px solid #4a3c28;
 }
 
-.coin.idle {
-  background: transparent;
-  color: #4a3c28;
+.coin.small {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+/* ---- Đồng xu 3D lật thật ---- */
+.coin-bounce {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.coin-bounce.landed {
+  animation: coin-settle 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes coin-settle {
+  0%   { transform: translateY(-10px) scale(1.12); }
+  45%  { transform: translateY(0) scaleY(0.82) scaleX(1.08); }
+  72%  { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.coin3d {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+
+.coin3d.idle {
   border: 1px dashed #4a3c28;
 }
 
-.coin.tossing {
-  background: linear-gradient(135deg, #c8983c 0%, #8b6428 50%, #c8983c 100%);
-  color: #f0e6d2;
-  animation: coin-toss var(--duration, 1200ms) linear forwards;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+.coin3d.show-heads { transform: rotateX(0deg); }
+.coin3d.show-tails { transform: rotateX(180deg); }
+
+.coin3d.tossing {
+  animation: coin-toss var(--duration, 1200ms) cubic-bezier(0.33, 0, 0.4, 1) forwards;
+}
+
+.coin-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  backface-visibility: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.coin-face.heads {
+  transform: rotateX(0deg);
+  background: radial-gradient(circle at 35% 30%, #f4d27a 0%, #c8983c 55%, #8b6428 100%);
+  color: #4a3008;
+  border: 2px solid #e0b048;
+}
+
+.coin-face.tails {
+  transform: rotateX(180deg);
+  background: radial-gradient(circle at 35% 30%, #4a3c2a 0%, #2c2118 60%, #1c140d 100%);
+  color: #c8983c;
+  border: 2px solid #4a3c28;
 }
 
 @keyframes coin-toss {
@@ -162,17 +219,6 @@ button.secondary:hover {
   80%  { transform: translateY(calc(var(--peak) * 0.64)) rotateX(calc(var(--rot) * 0.8)); }
   90%  { transform: translateY(calc(var(--peak) * 0.36)) rotateX(calc(var(--rot) * 0.9)); }
   100% { transform: translateY(0) rotateX(var(--rot)); }
-}
-
-.coin.landed {
-  animation: coin-land 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes coin-land {
-  0%   { transform: scale(1.2); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
-  40%  { transform: scale(0.88); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
-  70%  { transform: scale(1.05); }
-  100% { transform: scale(1); }
 }
 
 .toss-panel {
@@ -197,12 +243,14 @@ button.secondary:hover {
   font-size: 24px;
 }
 
-.toss-coins {
+/* Khung tung cao cố định -> đồng xu bay lên không làm xô đẩy phần dưới */
+.toss-stage {
   display: flex;
   gap: 32px;
-  padding: 240px 0 24px;
+  height: 280px;
   align-items: flex-end;
-  perspective: 600px;
+  justify-content: center;
+  perspective: 700px;
 }
 
 .coin-slot {
@@ -222,21 +270,12 @@ button.secondary:hover {
   transform: translateX(-50%);
 }
 
-.toss-coins .coin {
-  width: 64px;
-  height: 64px;
-  font-size: 24px;
-  border-radius: 50%;
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-}
-
-.coin.small {
-  width: 28px;
-  height: 28px;
-  font-size: 12px;
+/* Giữ chỗ cố định cho dòng kết quả -> nút không bị nhảy lên/xuống */
+.toss-result-slot {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toss-result {
@@ -251,6 +290,11 @@ button.secondary:hover {
 .toss-result strong {
   color: #e8c878;
   font-size: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin3d.tossing { animation-duration: 0.45s; }
+  .coin-bounce.landed { animation: none; }
 }
 
 .coin-total {

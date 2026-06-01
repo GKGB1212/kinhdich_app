@@ -1,30 +1,71 @@
 import { useState } from "react";
-import { isYang, isChanging, lookupHexagram, transformLines } from "./iching";
+import {
+  isYang,
+  isChanging,
+  lookupHexagram,
+  transformLines,
+  flipCoin,
+  coinValue,
+} from "./iching";
 import { LINE_NAME } from "./data";
 import { playToss, playLand } from "./sound";
 import "./App.css";
 
+// Hai mặt của đồng xu: ngửa (dương = 3) và sấp (âm = 2).
+function CoinFaces() {
+  return (
+    <>
+      <span className="coin-face heads" aria-hidden="true">
+        乾
+      </span>
+      <span className="coin-face tails" aria-hidden="true">
+        坤
+      </span>
+    </>
+  );
+}
+
 function CoinDisplay({ state, params }) {
-  if (state === null) return <div className="coin idle">·</div>;
-  if (state === "tossing") {
+  if (state === null) {
     return (
-      <div
-        className="coin tossing"
-        style={{
-          "--duration": `${params.duration}ms`,
-          "--peak": `${params.peak}px`,
-          "--rot": `${params.rotation}deg`,
-        }}
-      >
-        ?
+      <div className="coin-bounce">
+        <div className="coin3d idle" />
       </div>
     );
   }
+  if (state === "tossing") {
+    return (
+      <div className="coin-bounce">
+        <div
+          className="coin3d tossing"
+          style={{
+            "--duration": `${params.duration}ms`,
+            "--peak": `${params.peak}px`,
+            "--rot": `${params.rotation}deg`,
+          }}
+        >
+          <CoinFaces />
+        </div>
+      </div>
+    );
+  }
+  const up = state === "ngua" ? "show-heads" : "show-tails";
   return (
-    <div className={`coin ${state} landed`}>
-      {state === "ngua" ? "N" : "S"}
+    <div className="coin-bounce landed">
+      <div className={`coin3d ${up}`}>
+        <CoinFaces />
+      </div>
     </div>
   );
+}
+
+// Số nửa vòng lật: chẵn -> dừng ở mặt ngửa, lẻ -> mặt sấp.
+// Nhờ vậy đồng xu rơi ĐÚNG mặt kết quả thay vì "nhảy" số.
+function rotationFor(result) {
+  const wantTails = result === "sap";
+  let half = 12 + Math.floor(Math.random() * 8); // 6–9 vòng
+  if ((half % 2 === 1) !== wantTails) half += 1;
+  return half * 180;
 }
 
 function TossArea({ lineIdx, totalLines, onResult }) {
@@ -35,19 +76,18 @@ function TossArea({ lineIdx, totalLines, onResult }) {
   const startToss = () => {
     setPhase("tossing");
 
-    const params = Array.from({ length: 3 }, () => ({
+    // Quyết định kết quả TRƯỚC để đồng xu lật rơi đúng mặt.
+    const results = Array.from({ length: 3 }, flipCoin);
+
+    const params = results.map((r) => ({
       duration: 1100 + Math.random() * 700,
       peak: -(150 + Math.random() * 70),
-      rotation: 1440 + Math.floor(Math.random() * 5) * 360,
+      rotation: rotationFor(r),
     }));
     setAnimParams(params);
     setCoinStates(["tossing", "tossing", "tossing"]);
 
     playToss();
-
-    const results = Array.from({ length: 3 }, () =>
-      Math.random() < 0.5 ? "sap" : "ngua"
-    );
 
     results.forEach((r, i) => {
       setTimeout(() => {
@@ -67,10 +107,7 @@ function TossArea({ lineIdx, totalLines, onResult }) {
   const handleClick = () => {
     if (phase === "tossing") return;
     if (phase === "settled") {
-      const total = coinStates.reduce(
-        (s, c) => s + (c === "ngua" ? 3 : 2),
-        0
-      );
+      const total = coinStates.reduce((s, c) => s + coinValue(c), 0);
       onResult({ coins: [...coinStates], total });
       if (lineIdx < totalLines) startToss();
     } else {
@@ -80,28 +117,36 @@ function TossArea({ lineIdx, totalLines, onResult }) {
 
   const total =
     phase === "settled"
-      ? coinStates.reduce((s, c) => s + (c === "ngua" ? 3 : 2), 0)
+      ? coinStates.reduce((s, c) => s + coinValue(c), 0)
       : null;
+
+  let label;
+  if (phase === "tossing") label = "Đang gieo…";
+  else if (phase === "settled")
+    label = lineIdx < totalLines ? "Gieo hào tiếp theo →" : "Xem kết quả quẻ →";
+  else label = `Gieo hào ${lineIdx}`;
 
   return (
     <div className="toss-area">
       <div className="toss-header">
         Hào <strong>{lineIdx}</strong> / {totalLines}
       </div>
-      <div className="toss-coins">
+      <div className="toss-stage" aria-live="polite">
         {coinStates.map((s, i) => (
           <div key={i} className="coin-slot">
             <CoinDisplay state={s} params={animParams[i]} />
           </div>
         ))}
       </div>
-      {phase === "settled" && (
-        <div className="toss-result">
-          Tổng <strong>{total}</strong> — {LINE_NAME[total]}
-        </div>
-      )}
+      <div className="toss-result-slot">
+        {phase === "settled" && (
+          <div className="toss-result">
+            Tổng <strong>{total}</strong> — {LINE_NAME[total]}
+          </div>
+        )}
+      </div>
       <button onClick={handleClick} disabled={phase === "tossing"}>
-        {phase === "tossing" ? "Đang tung..." : "Tung 3 đồng xu"}
+        {label}
       </button>
     </div>
   );
@@ -265,7 +310,8 @@ export default function App() {
       <header>
         <h1>Kinh Dịch — Gieo quẻ 3 đồng xu</h1>
         <p className="sub">
-          Sấp = 2 · Ngửa = 3 · Tung 6 lần, mỗi lần 1 hào (từ dưới lên)
+          Ngửa 乾 = 3 (dương) · Sấp 坤 = 2 (âm) · Gieo 6 lần, mỗi lần 1 hào (từ
+          dưới lên)
         </p>
       </header>
 
